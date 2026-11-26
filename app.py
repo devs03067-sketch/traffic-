@@ -79,6 +79,10 @@ def detect():
 
     return jsonify(width=width, height=height, detections=detections)
 
+import os
+
 if __name__ == "__main__":
-    # Listen on all interfaces (0.0.0.0) if you want external access; here we match the original request.
-    app.run(host="127.0.0.1", port=8787, debug=False)
+    # Render provides the listening port in the $PORT env var.
+    # Fallback to 8787 for local testing.
+    port = int(os.getenv("PORT", 8787))
+    app.run(host="0.0.0.0", port=port, debug=False)
