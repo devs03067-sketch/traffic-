@@ -1,36 +1,31 @@
-# ------------------------------------------------------------
-# Dockerfile – Render (Docker runtime) – free tier
-# ------------------------------------------------------------
-FROM python:3.11-slim-bullseye
+# Dockerfile – Render (Docker runtime)
+FROM python:3.11-slim-bookworm
 
-# Prevent interactive debconf dialogs during apt install
+# Prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# System packages needed by ultralytics / OpenCV
+# System packages needed by Ultralytics and OpenCV
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         gcc \
-        libgl1-mesa-glx \
+        libgl1 \
         libglib2.0-0 \
         ffmpeg \
         libsm6 \
         libxext6 && \
     rm -rf /var/lib/apt/lists/*
 
-# -----------------------------------------------------------------
-# Python environment
-# -----------------------------------------------------------------
 WORKDIR /app
 
-# Install Python dependencies first (cached)
+# Install Python dependencies first
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the app source (including the YOLO model file)
+# Copy the app source, including the YOLO model file
 COPY . .
 
-# Expose the port Render will map (default is $PORT, we expose 8787 just in case)
+# Render sets the PORT environment variable
 EXPOSE 8787
 
-# Run the Flask server – it will read $PORT supplied by Render
+# Start the Flask server
 CMD ["python", "app.py"]
